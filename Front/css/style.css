@@ -1,0 +1,663 @@
+/* ==========================================================================
+   1. RESET & SETUP DASAR
+   ========================================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; 
+    font-family: 'Montserrat', sans-serif; 
+}
+
+body {
+    background-color: #333333; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; 
+}
+
+/* ==========================================================================
+   2. CONTAINER UTAMA (SIMULASI LAYAR HP)
+   ========================================================================== */
+.mobile-container {
+    width: 100%;
+    max-width: 412px; 
+    height: 844px;    
+    background-color: #121212; 
+    color: #ffffff;   
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden; /* Menyembunyikan elemen yang keluar dari batas layar HP */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); /* Efek bayangan */
+    border-radius: 20px; /* Sudut melengkung ujung HP */
+}
+
+/* ==========================================================================
+   3. HEADER STYLING (Bagian Atas)
+   ========================================================================== */
+.app-header {
+    display: flex;
+    justify-content: space-between; /* Logo di kiri, ikon utilitas di kanan */
+    align-items: center;
+    padding: 20px;
+    /* Efek gradasi gelap transparan dari atas ke bawah */
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+}
+
+.logo {
+    font-size: 20px;
+    font-weight: 700; /* Buat teks 'Musikita' jadi tebal */
+    letter-spacing: 0.5px;
+    
+    /* --- EFEK GRADASI TULISAN MUSIKITA (#FF4E6B) --- */
+    background: linear-gradient(to right, #FF4E6B, #FF8A00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+}
+
+/* Buat elemen pembungkus link di header nggak merusak tampilan ikon */
+.header-icons {
+    display: flex;
+    gap: 15px; /* Jarak antar ikon */
+}
+
+.header-icons a {
+    color: #b3b3b3; /* Warna ikon default abu-abu tipis */
+    text-decoration: none;
+    font-size: 20px;
+    transition: color 0.2s;
+}
+
+.header-icons a:hover {
+    color: #ffffff; /* Ikon berubah putih terang saat diarahkan kursor */
+}
+
+/* ==========================================================================
+   4. MAIN CONTENT STYLING (Bagian Tengah / Scrollable)
+   ========================================================================== */
+.main-content {
+    flex: 1; /* Mengisi seluruh sisa ruang kosong di antara header dan nav bawah */
+    overflow-y: auto; /* Mengaktifkan scroll vertikal jika konten melebihi tinggi HP */
+    padding: 0 20px 100px 20px; /* Padding bawah 100px agar konten tidak tertutup menu bawah */
+}
+
+.main-content h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+/* --- KONTEN HALAMAN HOME: QUICK MIX GRID --- */
+.quick-mix-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Membagi rata menjadi 2 kolom */
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.mix-card {
+    display: flex;
+    align-items: center;
+    background-color: #282828;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mix-card:hover {
+    background-color: #333333;
+}
+
+.mix-img {
+    width: 55px;
+    height: 55px;
+    background-color: #535353; /* Placeholder untuk cover album */
+}
+
+.mix-card p {
+    font-size: 12px;
+    font-weight: 600;
+    padding-left: 10px;
+}
+
+/* --- KONTEN HALAMAN HOME: PLAYLIST ROW (Scroll Horizontal) --- */
+.section-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.playlist-row {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto; /* Mengaktifkan geser ke samping */
+    padding-bottom: 10px;
+}
+
+.playlist-row::-webkit-scrollbar {
+    display: none; /* Sembunyikan scrollbar bawaan agar rapi */
+}
+
+.playlist-card {
+    background-color: #181818;
+    padding: 12px;
+    border-radius: 6px;
+    min-width: 140px;
+}
+
+.card-img {
+    width: 116px;
+    height: 116px;
+    background-color: #282828;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.playlist-card h4 {
+    font-size: 12px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* Efek titik-titik (...) jika teks terlalu panjang */
+}
+
+.playlist-card p {
+    font-size: 10px;
+    color: #b3b3b3;
+}
+
+/* --- KONTEN HALAMAN CARI (SEARCH) --- */
+.search-bar-container {
+    position: relative;
+    margin-top: 15px;
+}
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #121212;
+    font-size: 18px;
+}
+.search-input {
+    width: 100%;
+    padding: 14px 14px 14px 45px;
+    border-radius: 8px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    background-color: #ffffff;
+    color: #000000;
+}
+.category-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 15px;
+}
+.category-card {
+    height: 100px;
+    border-radius: 8px;
+    padding: 15px;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+/* --- KONTEN HALAMAN KOLEKSI (LIBRARY) --- */
+.library-filter {
+    display: flex;
+    gap: 10px;
+    margin: 15px 0 20px 0;
+}
+.filter-badge {
+    background-color: #282828;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.filter-badge.active {
+    background-color: #FF4E6B; /* Mengikuti warna tema Musikita baru */
+    color: #ffffff;
+}
+.library-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+.lib-img {
+    width: 60px;
+    height: 60px;
+    background-color: #282828;
+    border-radius: 4px;
+}
+.lib-info h4 { font-size: 14px; margin-bottom: 4px;}
+.lib-info p { font-size: 12px; color: #b3b3b3;}
+
+/* --- KONTEN HALAMAN RIWAYAT (HISTORY) --- */
+.history-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.hist-img {
+    width: 50px;
+    height: 50px;
+    background-color: #282828;
+    border-radius: 4px;
+}
+.history-item i {
+    color: #b3b3b3;
+    cursor: pointer;
+}
+.hist-info { flex: 1; }
+.hist-info h4 { font-size: 14px; margin-bottom: 2px; }
+.hist-info p { font-size: 12px; color: #b3b3b3; }
+
+/* --- KONTEN HALAMAN PROFIL --- */
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 0;
+    text-align: center;
+}
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background-color: #282828;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 40px;
+    color: #b3b3b3;
+    margin-bottom: 15px;
+}
+.profile-card h3 { font-size: 20px; margin-bottom: 5px; }
+.profile-card p { font-size: 12px; color: #b3b3b3; }
+.profile-menu { margin-top: 10px; width: 100%; }
+.menu-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 18px 0;
+    border-bottom: 1px solid #282828;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   5. BOTTOM NAVIGATION STYLING (Menu Bagian Bawah)
+   ========================================================================== */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 65px;
+    background: linear-gradient(to top, #000000 80%, transparent);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #b3b3b3; /* Warna default menu pasif */
+    text-decoration: none;
+    font-size: 10px;
+    gap: 4px;
+}
+
+.nav-item i {
+    font-size: 18px;
+}
+
+/* Class khusus untuk menu bawah yang sedang aktif */
+.nav-item.active {
+    color: #ffffff; /* Menu menyala putih jika aktif */
+}
+
+/* ==========================================================================
+   7. STYLING HALAMAN LOGIN
+   ========================================================================== */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 30px;
+    height: 100%;
+}
+
+.login-logo {
+    font-size: 36px;
+    font-weight: 700;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+    background: linear-gradient(to right, #FF4E6B, #FF8A00);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-fill-color: transparent;
+}
+
+.login-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b3b3b3;
+}
+
+.login-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: 1px solid #404040;
+    background-color: #1e1e1e;
+    color: #ffffff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.login-input:focus {
+    border-color: #FF4E6B; /* Berubah warna tema saat diklik */
+}
+
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 25px; /* Membuat tombol lonjong melengkung */
+    background: linear-gradient(to right, #FF4E6B, #FF8A00);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: transform 0.1s;
+}
+
+.login-btn:active {
+    transform: scale(0.98); /* Efek membal saat tombol ditekan */
+}
+
+.error-message {
+    color: #E61E32;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-height: 18px; /* Menjaga ruang agar layout tidak bergeser saat error muncul */
+}
+
+.auth-switch-text {
+    text-align: center;
+    font-size: 12px;
+    color: #b3b3b3;
+    margin-top: 10px;
+}
+
+.register-btn {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #404040;
+    border-radius: 25px;
+    background: transparent;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    margin-top: 8px;
+    transition: border-color 0.2s, transform 0.1s;
+}
+
+.register-btn:hover {
+    border-color: #FF4E6B;
+}
+
+.register-btn:active {
+    transform: scale(0.98);
+}
+
+/* ==========================================================================
+   8. STYLING HALAMAN PUTAR LAGU (PLAYER)
+   ========================================================================== */
+.player-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.player-header a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 20px;
+}
+
+.player-header .player-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #b3b3b3;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.player-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 30px 100px 30px;
+}
+
+.player-cover {
+    width: 100%;
+    max-width: 280px;
+    aspect-ratio: 1 / 1;
+    background-color: #282828;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0 35px 0;
+}
+
+.player-cover i {
+    font-size: 60px;
+    color: #535353;
+}
+
+.player-info {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.player-info h3 {
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.player-info p {
+    font-size: 13px;
+    color: #b3b3b3;
+}
+
+.player-progress {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 4px;
+    background-color: #4d4d4d;
+    border-radius: 2px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.progress-bar-fill {
+    width: 35%;
+    height: 100%;
+    background-color: #ffffff;
+    border-radius: 2px;
+}
+
+.progress-time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: #b3b3b3;
+    margin-top: 6px;
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 35px;
+}
+
+.player-controls i {
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.control-secondary {
+    font-size: 20px;
+    color: #b3b3b3 !important;
+}
+
+.control-play {
+    width: 64px;
+    height: 64px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.control-play i {
+    color: #121212 !important;
+    font-size: 24px;
+}
+
+/* ==========================================================================
+   9. STYLING HALAMAN HASIL PENCARIAN
+   ========================================================================== */
+.search-bar-container.with-back {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 5px;
+}
+
+.back-link {
+    color: #ffffff;
+    font-size: 18px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.search-bar-container.with-back .search-input {
+    flex: 1;
+}
+
+.search-bar-container.with-back .search-icon {
+    left: 27px;
+}
+
+.search-query-label {
+    font-size: 13px;
+    color: #b3b3b3;
+    margin: 20px 0 15px 0;
+}
+
+.search-query-label span {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.result-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.result-img {
+    width: 55px;
+    height: 55px;
+    background-color: #282828;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.result-img i {
+    color: #535353;
+    font-size: 18px;
+}
+
+.result-info h4 {
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+.result-info p {
+    font-size: 12px;
+    color: #b3b3b3;
+}
+
+.result-empty {
+    text-align: center;
+    padding: 50px 20px;
+    color: #b3b3b3;
+}
+
+.result-empty i {
+    font-size: 36px;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.result-empty p {
+    font-size: 13px;
+}

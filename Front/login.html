@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Masuk</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <!-- KONTEN UTAMA LOGIN -->
+        <div class="login-container">
+            
+            <!-- Logo Utama Aplikasi -->
+            <div class="login-logo">Musikita</div>
+            
+            <!-- Form Login -->
+            <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
+                
+                <!-- Input Email -->
+                <div class="input-group">
+                    <label for="email">Alamat Email</label>
+                    <input type="email" id="email" class="login-input" placeholder="Masukkan email kamu" required>
+                </div>
+                
+                <!-- Input Kata Sandi -->
+                <div class="input-group">
+                    <label for="password">Kata Sandi</label>
+                    <input type="password" id="password" class="login-input" placeholder="Masukkan kata sandi" required>
+                </div>
+                
+                <!-- Tempat Munculnya Pesan Error (Mulai dengan kosong) -->
+                <div id="errorTxt" class="error-message"></div>
+                
+                <!-- Tombol Masuk -->
+                <button type="submit" class="login-btn">Masuk</button>
+                
+                <!-- Link Menuju Halaman Daftar -->
+                <p class="auth-switch-text">Belum punya akun?</p>
+                <a href="register.html" class="register-btn">Daftar</a>
+                
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- LOGIKA CEK AKUN (PROTOTYPE FRONTEND) -->
+    <script>
+        function handleLogin(event) {
+            // Mencegah halaman reload otomatis saat form dikirim
+            event.preventDefault(); 
+            
+            // Mengambil nilai teks yang diketik oleh user
+            const emailInput = document.getElementById('email').value;
+            const passwordInput = document.getElementById('password').value;
+            const errorTxt = document.getElementById('errorTxt');
+            
+
+            // SANDI: sumbul@gmail.com  PASSWORD: sumbul123
+            // LOGIKA PENGUJIAN: Sesuai dengan akun Sumbul
+            if (emailInput === 'sumbul@gmail.com' && passwordInput === 'sumbul123') {
+                errorTxt.innerText = ""; // Hapus pesan error jika ada
+                
+                // Pindah secara sukses ke halaman Home (index.html)
+                window.location.href = "index.html"; 
+            } else {
+                // Jika salah, tampilkan pesan error di layar
+                errorTxt.innerText = "Email atau kata sandi salah!";
+            }
+        }
+    </script>
+</body>
+</html>

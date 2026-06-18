@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Home</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita</span>
+            </div>
+            <div class="header-icons">
+                <a href="riwayat.html"><i class="far fa-clock"></i></a>
+                <a href="profil.html"><i class="far fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2>Selamat Pagi</h2>
+            
+            <div class="quick-mix-grid">
+                <div class="mix-card" onclick="window.location.href='player.html?judul=Lagu Santai&artis=Berbagai Artis'">
+                    <div class="mix-img"></div>
+                    <p>Lagu Santai</p>
+                </div>
+                <div class="mix-card" onclick="window.location.href='player.html?judul=Daily Mix 1&artis=Berbagai Artis'">
+                    <div class="mix-img"></div>
+                    <p>Daily Mix 1</p>
+                </div>
+            </div>
+
+            <h3 class="section-title">Baru Saja Diputar</h3>
+            <div class="playlist-row">
+                <div class="playlist-card" onclick="window.location.href='player.html?judul=Top Hits Indonesia&artis=Musikita'">
+                    <div class="card-img"></div>
+                    <h4>Top Hits Indonesia</h4>
+                    <p>Playlist • Musikita</p>
+                </div>
+                <div class="playlist-card" onclick="window.location.href='player.html?judul=J-Pop Essentials&artis=Akhir Pekan'">
+                    <div class="card-img"></div>
+                    <h4>J-Pop Essentials</h4>
+                    <p>Playlist • Akhir Pekan</p>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="cari.html" class="nav-item">
+                <i class="fas fa-search"></i>
+                <span>Cari</span>
+            </a>
+            <a href="koleksi.html" class="nav-item">
+                <i class="fas fa-book-open"></i>
+                <span>Koleksi</span>
+            </a>
+        </nav>
+
+    </div>
+
+</body>
+</html>

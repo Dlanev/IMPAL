@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Daftar</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <!-- KONTEN UTAMA REGISTER -->
+        <div class="login-container">
+
+            <!-- Logo Utama Aplikasi -->
+            <div class="login-logo">Musikita</div>
+
+            <!-- Form Register (Tampilan Saja, Tanpa Logika) -->
+            <form class="login-form" id="registerForm">
+
+                <!-- Input Nama Pengguna -->
+                <div class="input-group">
+                    <label for="username">Nama Pengguna</label>
+                    <input type="text" id="username" class="login-input" placeholder="Masukkan nama pengguna" required>
+                </div>
+
+                <!-- Input Email -->
+                <div class="input-group">
+                    <label for="regEmail">Alamat Email</label>
+                    <input type="email" id="regEmail" class="login-input" placeholder="Masukkan email kamu" required>
+                </div>
+
+                <!-- Input Kata Sandi -->
+                <div class="input-group">
+                    <label for="regPassword">Kata Sandi</label>
+                    <input type="password" id="regPassword" class="login-input" placeholder="Buat kata sandi" required>
+                </div>
+
+                <!-- Input Konfirmasi Kata Sandi -->
+                <div class="input-group">
+                    <label for="confirmPassword">Konfirmasi Kata Sandi</label>
+                    <input type="password" id="confirmPassword" class="login-input" placeholder="Ulangi kata sandi" required>
+                </div>
+
+                <!-- Tombol Daftar: Tampilan saja, langsung kembali ke halaman Login -->
+                <a href="login.html" class="login-btn" style="display: block; text-align: center; text-decoration: none;">Daftar</a>
+
+                <!-- Link Menuju Halaman Login -->
+                <p class="auth-switch-text">Sudah punya akun?</p>
+                <a href="login.html" class="register-btn">Masuk</a>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

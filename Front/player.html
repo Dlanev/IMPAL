@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Sedang Diputar</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <!-- HEADER PLAYER: Tombol kembali & label -->
+        <header class="player-header">
+            <a href="javascript:history.back()"><i class="fas fa-chevron-down"></i></a>
+            <span class="player-label">Sedang Diputar</span>
+            <a href="#"><i class="fas fa-ellipsis-v"></i></a>
+        </header>
+
+        <!-- KONTEN UTAMA PLAYER -->
+        <main class="player-content">
+
+            <!-- Cover Lagu (Placeholder) -->
+            <div class="player-cover">
+                <i class="fas fa-music"></i>
+            </div>
+
+            <!-- Info Judul & Artis Lagu -->
+            <div class="player-info">
+                <h3 id="songTitle">Judul Lagu</h3>
+                <p id="songArtist">Nama Artis</p>
+            </div>
+
+            <!-- Progress Bar Lagu -->
+            <div class="player-progress">
+                <div class="progress-bar-track" id="progressTrack">
+                    <div class="progress-bar-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-time">
+                    <span id="currentTime">1:12</span>
+                    <span id="totalTime">3:24</span>
+                </div>
+            </div>
+
+            <!-- Tombol Kontrol Player -->
+            <div class="player-controls">
+                <i class="fas fa-random control-secondary"></i>
+                <i class="fas fa-step-backward"></i>
+                <div class="control-play" id="playPauseBtn" onclick="togglePlay()">
+                    <i class="fas fa-play" id="playPauseIcon"></i>
+                </div>
+                <i class="fas fa-step-forward"></i>
+                <i class="fas fa-redo control-secondary"></i>
+            </div>
+
+        </main>
+
+    </div>
+
+    <script>
+        // Ambil data lagu dari URL (dikirim dari halaman hasil pencarian / lainnya)
+        const params = new URLSearchParams(window.location.search);
+        const judul = params.get('judul');
+        const artis = params.get('artis');
+
+        if (judul) {
+            document.getElementById('songTitle').innerText = judul;
+        }
+        if (artis) {
+            document.getElementById('songArtist').innerText = artis;
+        }
+
+        // Logika sederhana tombol Play / Pause
+        let isPlaying = false;
+        function togglePlay() {
+            const icon = document.getElementById('playPauseIcon');
+            isPlaying = !isPlaying;
+
+            if (isPlaying) {
+                icon.classList.remove('fa-play');
+                icon.classList.add('fa-pause');
+            } else {
+                icon.classList.remove('fa-pause');
+                icon.classList.add('fa-play');
+            }
+        }
+    </script>
+
+</body>
+</html>
