@@ -54,26 +54,40 @@
 
     <!-- LOGIKA CEK AKUN (PROTOTYPE FRONTEND) -->
     <script>
-        function handleLogin(event) {
-            // Mencegah halaman reload otomatis saat form dikirim
+        async function handleLogin(event) {
             event.preventDefault(); 
             
-            // Mengambil nilai teks yang diketik oleh user
             const emailInput = document.getElementById('email').value;
             const passwordInput = document.getElementById('password').value;
             const errorTxt = document.getElementById('errorTxt');
             
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput, password: passwordInput })
+                });
 
-            // SANDI: sumbul@gmail.com  PASSWORD: sumbul123
-            // LOGIKA PENGUJIAN: Sesuai dengan akun Sumbul
-            if (emailInput === 'sumbul@gmail.com' && passwordInput === 'sumbul123') {
-                errorTxt.innerText = ""; // Hapus pesan error jika ada
+                const result = await response.json();
                 
-                // Pindah secara sukses ke halaman Home (index.html)
-                window.location.href = "index.html"; 
-            } else {
-                // Jika salah, tampilkan pesan error di layar
-                errorTxt.innerText = "Email atau kata sandi salah!";
+                if (response.ok) {
+                    errorTxt.innerText = ""; 
+                    // Simpan token ke localStorage
+                    localStorage.setItem('token', result.data.token);
+                    
+                    alert("Login berhasil!");
+                    
+                    if (result.data.role === "musician") {
+                        window.location.href = "musician_dashboard.html";
+                    } else {
+                        window.location.href = "index.html"; 
+                    }
+                } else {
+                    errorTxt.innerText = result.message || result.error || "Email atau kata sandi salah!";
+                }
+            } catch (error) {
+                errorTxt.innerText = "Terjadi kesalahan pada server.";
+                console.error(error);
             }
         }
     </script>

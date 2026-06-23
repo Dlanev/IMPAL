@@ -19,6 +19,18 @@ func SongRoutes(
 	)
 
 	api.GET(
+		"/my-songs",
+		middleware.RoleMiddleware("musician"),
+		song.GetMySongs,
+	)
+
+	api.POST(
+		"",
+		middleware.RoleMiddleware("musician"),
+		song.UploadSong,
+	)
+
+	api.GET(
 		"",
 		song.GetAllSongs,
 	)

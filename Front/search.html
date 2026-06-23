@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Cari</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita</span>
+            </div>
+            <div class="header-icons">
+                <a href="history.html"><i class="far fa-clock"></i></a>
+                <a href="profile.html"><i class="far fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2>Cari</h2>
+            
+            <div class="search-bar-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" placeholder="Apa yang ingin kamu dengarkan?" class="search-input" onkeyup="if(event.key === 'Enter') goToSearch()">
+            </div>
+            
+            <h3 class="section-title" style="margin-top: 25px;">Jelajahi Semua</h3>
+            <div class="category-grid">
+                <div class="category-card" style="background-color: #E61E32;" onclick="goToSearch('Pop')">Pop</div>
+                <div class="category-card" style="background-color: #1E3264;" onclick="goToSearch('J-Pop')">J-Pop</div>
+                <div class="category-card" style="background-color: #E1306C;" onclick="goToSearch('Akustik')">Akustik</div>
+                <div class="category-card" style="background-color: #7D4B32;" onclick="goToSearch('Podcast')">Podcast</div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item active">
+                <i class="fas fa-search"></i>
+                <span>Cari</span>
+            </a>
+            <a href="library.html" class="nav-item">
+                <i class="fas fa-book-open"></i>
+                <span>Koleksi</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script>
+        // Mengarahkan ke halaman hasil pencarian, baik dari input teks maupun klik kategori
+        function goToSearch(kategori) {
+            const inputValue = document.getElementById('searchInput').value.trim();
+            const keyword = kategori || inputValue;
+
+            if (keyword === '') {
+                return; // Jangan pindah halaman jika input kosong dan bukan dari kategori
+            }
+
+            window.location.href = 'hasil-search.html?q=' + encodeURIComponent(keyword);
+        }
+    </script>
+
+</body>
+</html>

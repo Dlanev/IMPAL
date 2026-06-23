@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Musician Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .upload-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .upload-form label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ccc;
+        }
+        .upload-form input {
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #222;
+            color: #fff;
+            font-family: 'Montserrat', sans-serif;
+        }
+        .upload-form input[type="file"] {
+            padding: 8px;
+        }
+        .upload-btn {
+            background-color: #1DB954;
+            color: #fff;
+            padding: 15px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <!-- HEADER ATAS -->
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita <small style="color: #1DB954; font-size: 12px;">(Musician)</small></span>
+            </div>
+            <div class="header-icons">
+                <a href="profile.html" style="color: #ffffff;"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <!-- KONTEN UTAMA HALAMAN DASHBOARD -->
+        <main class="main-content">
+            <h2>Upload Musik</h2>
+            <p style="color: #b3b3b3; font-size: 14px;">Bagikan karya musik terbarumu ke seluruh pendengar.</p>
+            
+            <form class="upload-form" id="uploadForm">
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="title">Judul Lagu</label>
+                    <input type="text" id="title" name="title" placeholder="Masukkan judul lagu" required>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="artist">Nama Artis</label>
+                    <input type="text" id="artist" name="artist" placeholder="Masukkan nama artis" required>
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="album">Album (Opsional)</label>
+                    <input type="text" id="album" name="album" placeholder="Masukkan nama album">
+                </div>
+                
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="cover">Gambar Cover (Image)</label>
+                    <input type="file" id="cover" name="cover" accept="image/*">
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <label for="audio">File Audio (MP3)</label>
+                    <input type="file" id="audio" name="audio" accept="audio/mpeg, audio/mp3" required>
+                </div>
+                
+                <button type="submit" class="upload-btn">Upload Sekarang</button>
+            </form>
+        </main>
+
+        <!-- NAVBAR BAWAH -->
+        <nav class="bottom-nav">
+            <a href="musician_home.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="musician_dashboard.html" class="nav-item" style="color: #ffffff;">
+                <i class="fas fa-upload"></i>
+                <span>Upload</span>
+            </a>
+            <a href="musician_profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Script to Handle Upload (Dummy implementation, should integrate with real token) -->
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const token = localStorage.getItem('token'); // Asumsi token disimpan di localStorage saat login
+
+            if (!token) {
+                alert("Anda belum login.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/songs', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert("Berhasil mengunggah musik!");
+                    e.target.reset();
+                } else {
+                    alert(`Gagal: ${result.message || result.error}`);
+                }
+            } catch (error) {
+                console.error("Upload error:", error);
+                alert("Terjadi kesalahan jaringan saat mengunggah.");
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -101,6 +101,9 @@ func main() {
 
 	r := gin.Default()
 
+	// Serve static files (uploads)
+	r.Static("/uploads", "./uploads")
+
 	// CORS
 
 	r.Use(cors.New(cors.Config{

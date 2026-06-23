@@ -4,6 +4,7 @@ import "time"
 
 type Song struct {
 	ID uint `gorm:"primaryKey"`
+	UserID uint `gorm:"not null"`
 
 	Title string `gorm:"size:255;not null"`
 	Artist string `gorm:"size:255;not null"`

@@ -48,8 +48,20 @@
                     <input type="password" id="confirmPassword" class="login-input" placeholder="Ulangi kata sandi" required>
                 </div>
 
-                <!-- Tombol Daftar: Tampilan saja, langsung kembali ke halaman Login -->
-                <a href="login.html" class="login-btn" style="display: block; text-align: center; text-decoration: none;">Daftar</a>
+                <!-- Input Role -->
+                <div class="input-group">
+                    <label for="role">Daftar Sebagai</label>
+                    <select id="role" class="login-input" style="background-color: #222; color: #fff; border: 1px solid #444;" required>
+                        <option value="listener">Pendengar</option>
+                        <option value="musician">Musisi</option>
+                    </select>
+                </div>
+
+                <!-- Pesan Error -->
+                <div id="errorTxt" class="error-message" style="color: #E61E32; margin-bottom: 10px;"></div>
+
+                <!-- Tombol Daftar -->
+                <button type="submit" class="login-btn" style="width: 100%;">Daftar</button>
 
                 <!-- Link Menuju Halaman Login -->
                 <p class="auth-switch-text">Sudah punya akun?</p>
@@ -60,6 +72,45 @@
         </div>
 
     </div>
+
+    <!-- LOGIKA REGISTER -->
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); 
+            
+            const username = document.getElementById('username').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const role = document.getElementById('role').value;
+            const errorTxt = document.getElementById('errorTxt');
+
+            if (password !== confirmPassword) {
+                errorTxt.innerText = "Kata sandi tidak cocok!";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password, role })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert("Registrasi berhasil! Silakan login.");
+                    window.location.href = "login.html"; 
+                } else {
+                    errorTxt.innerText = result.message || result.error || "Gagal melakukan registrasi.";
+                }
+            } catch (error) {
+                errorTxt.innerText = "Terjadi kesalahan pada server.";
+                console.error(error);
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -15,6 +15,7 @@ type RegisterRequest struct {
 	Username string `json:"username"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	Role     string `json:"role"`
 }
 
 type LoginRequest struct {
@@ -43,6 +44,7 @@ func (a *AuthController) Register(
 		req.Username,
 		req.Email,
 		req.Password,
+		req.Role,
 	)
 
 	if err != nil {
@@ -79,7 +81,7 @@ func (a *AuthController) Login(
 		return
 	}
 
-	token, err :=
+	token, role, err :=
 		a.AuthService.Login(
 			req.Email,
 			req.Password,
@@ -100,6 +102,7 @@ func (a *AuthController) Login(
 		"login success",
 		gin.H{
 			"token": token,
+			"role":  role,
 		},
 	)
 }

@@ -39,3 +39,11 @@ func (s *SongService) TrendingSongs() (
 	return s.SongRepo.GetTrending()
 }
 
+func (s *SongService) CreateSong(song *models.Song) error {
+	return s.SongRepo.Create(song)
+}
+
+func (s *SongService) GetMySongs(userID uint) ([]models.Song, error) {
+	return s.SongRepo.GetByUserID(userID)
+}
+

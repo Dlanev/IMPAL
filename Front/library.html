@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Koleksi</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita</span>
+            </div>
+            <div class="header-icons">
+                <a href="history.html"><i class="far fa-clock"></i></a>
+                <a href="profile.html"><i class="far fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2>Koleksi Kamu</h2>
+            
+            <div class="library-filter">
+                <span id="badge-playlist" class="filter-badge active" onclick="filterKoleksi('playlist')">Playlist</span>
+                <span id="badge-artis" class="filter-badge" onclick="filterKoleksi('artis')">Artis</span>
+                <span id="badge-album" class="filter-badge" onclick="filterKoleksi('album')">Album</span>
+            </div>
+            
+            <div class="library-list">
+                
+                <div id="content-playlist" class="lib-tab-content" style="display: block;">
+                    <div class="library-item" onclick="window.location.href='player.html?judul=Lagu Disukai&artis=Kamu'">
+                        <div class="lib-img"></div>
+                        <div class="lib-info">
+                            <h4>Lagu Disukai</h4>
+                            <p>Playlist • 120 Lagu</p>
+                        </div>
+                    </div>
+                    <div class="library-item" onclick="window.location.href='player.html?judul=Daftar Putar Santai&artis=Kamu'">
+                        <div class="lib-img"></div>
+                        <div class="lib-info">
+                            <h4>Daftar Putar Santai</h4>
+                            <p>Playlist • Kamu</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-artis" class="lib-tab-content" style="display: none;">
+                    <div class="library-item" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=JKT48'">
+                        <div class="lib-img" style="border-radius: 50%;"></div>
+                        <div class="lib-info">
+                            <h4>JKT48</h4>
+                            <p>Artis</p>
+                        </div>
+                    </div>
+                    <div class="library-item" onclick="window.location.href='player.html?judul=Yoru ni Kakeru&artis=Yoasobi'">
+                        <div class="lib-img" style="border-radius: 50%;"></div>
+                        <div class="lib-info">
+                            <h4>Yoasobi</h4>
+                            <p>Artis</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-album" class="lib-tab-content" style="display: none;">
+                    <div class="library-item" onclick="window.location.href='player.html?judul=Mahagita 2&artis=JKT48'">
+                        <div class="lib-img"></div>
+                        <div class="lib-info">
+                            <h4>Mahagita 2</h4>
+                            <p>Album • JKT48</p>
+                        </div>
+                    </div>
+                    <div class="library-item" onclick="window.location.href='player.html?judul=The Book&artis=Yoasobi'">
+                        <div class="lib-img"></div>
+                        <div class="lib-info">
+                            <h4>The Book</h4>
+                            <p>Album • Yoasobi</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i>
+                <span>Cari</span>
+            </a>
+            <a href="library.html" class="nav-item active">
+                <i class="fas fa-book-open"></i>
+                <span>Koleksi</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script>
+        function filterKoleksi(kategori) {
+            // 1. Sembunyikan semua konten tab terlebih dahulu
+            const semuaKonten = document.querySelectorAll('.lib-tab-content');
+            semuaKonten.forEach(konten => konten.style.display = 'none');
+
+            // 2. Hilangkan status warna aktif (class 'active') di semua tombol badge
+            const semuaBadge = document.querySelectorAll('.filter-badge');
+            semuaBadge.forEach(badge => badge.classList.remove('active'));
+
+            // 3. Munculkan konten dan nyalakan badge sesuai dengan kategori yang diklik
+            document.getElementById('content-' + kategori).style.display = 'block';
+            document.getElementById('badge-' + kategori).classList.add('active');
+        }
+    </script>
+</body>
+</html>

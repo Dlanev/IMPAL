@@ -17,6 +17,7 @@ func (s *AuthService) Register(
 	username string,
 	email string,
 	password string,
+	role string,
 ) error {
 
 	_, err := s.UserRepo.FindByEmail(email)
@@ -34,10 +35,15 @@ func (s *AuthService) Register(
 		return err
 	}
 
+	if role == "" {
+		role = "listener" // default role
+	}
+
 	user := models.User{
 		Username: username,
 		Email: email,
 		Password: hash,
+		Role: role,
 	}
 
 	return s.UserRepo.Create(&user)
@@ -46,13 +52,13 @@ func (s *AuthService) Register(
 func (s *AuthService) Login(
 	email string,
 	password string,
-) (string, error) {
+) (string, string, error) {
 
 	user, err :=
 		s.UserRepo.FindByEmail(email)
 
 	if err != nil {
-		return "", errors.New(
+		return "", "", errors.New(
 			"invalid credentials",
 		)
 	}
@@ -61,12 +67,14 @@ func (s *AuthService) Login(
 		password,
 		user.Password,
 	) {
-		return "", errors.New(
+		return "", "", errors.New(
 			"invalid credentials",
 		)
 	}
 
-	return config.GenerateToken(
+	token, err := config.GenerateToken(
 		user.ID,
 	)
+
+	return token, user.Role, err
 }

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Profil Musisi</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <!-- HEADER ATAS -->
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita <small style="color: #1DB954; font-size: 12px;">(Musician)</small></span>
+            </div>
+            <div class="header-icons">
+                <a href="musician_profile.html" style="color: #ffffff;"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <!-- KONTEN UTAMA HALAMAN PROFIL -->
+        <main class="main-content">
+            <h2>Profil Musisi</h2>
+            
+            <div class="profile-card">
+                <div class="profile-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h3 id="profileName">Loading...</h3>
+            </div>
+            
+            <div class="profile-menu">
+                
+                <!-- Baris Informasi Nama Pengguna -->
+                <div class="menu-row">
+                    <span>Nama Pengguna</span> 
+                    <span id="profileUsername" style="color: #b3b3b3; font-weight: 400;">Loading...</span>
+                </div>
+                
+                <!-- Baris Informasi Alamat Email -->
+                <div class="menu-row">
+                    <span>Email</span> 
+                    <span id="profileEmail" style="color: #b3b3b3; font-weight: 400;">Loading...</span>
+                </div>
+                
+                <!-- Menu Keluar -->
+                <div class="menu-row" style="color: #E61E32; cursor: pointer;" id="logoutBtn">
+                    <span>Keluar</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- NAVBAR BAWAH -->
+        <nav class="bottom-nav">
+            <a href="musician_home.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="musician_dashboard.html" class="nav-item">
+                <i class="fas fa-upload"></i>
+                <span>Upload</span>
+            </a>
+            <a href="musician_profile.html" class="nav-item" style="color: #ffffff;">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- LOGIKA FETCH PROFIL -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.data) {
+                    const user = result.data;
+                    document.getElementById('profileName').innerText = user.Username;
+                    document.getElementById('profileUsername').innerText = user.Username;
+                    document.getElementById('profileEmail').innerText = user.Email;
+                } else {
+                    alert("Gagal memuat profil. Silakan login ulang.");
+                    localStorage.removeItem('token');
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Error fetching profile:", error);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            window.location.href = "login.html";
+        });
+    </script>
+
+</body>
+</html>

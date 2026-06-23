@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Musician Home</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .song-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .song-card {
+            background-color: #181818;
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .song-card:hover {
+            background-color: #282828;
+        }
+        .song-img {
+            width: 100%;
+            aspect-ratio: 1;
+            background-color: #333;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-size: cover;
+            background-position: center;
+        }
+        .song-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 5px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .song-artist {
+            font-size: 12px;
+            color: #b3b3b3;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <!-- HEADER ATAS -->
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita <small style="color: #1DB954; font-size: 12px;">(Musician)</small></span>
+            </div>
+            <div class="header-icons">
+                <a href="musician_profile.html" style="color: #ffffff;"><i class="fas fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <!-- KONTEN UTAMA HALAMAN HOME MUSISI -->
+        <main class="main-content">
+            <h2>Karya Musik Anda</h2>
+            <p style="color: #b3b3b3; font-size: 14px;">Daftar lagu yang telah Anda upload.</p>
+            
+            <div id="songsContainer" class="song-grid">
+                <!-- Lagu akan dimuat di sini oleh JavaScript -->
+            </div>
+        </main>
+
+        <!-- NAVBAR BAWAH -->
+        <nav class="bottom-nav">
+            <a href="musician_home.html" class="nav-item" style="color: #ffffff;">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="musician_dashboard.html" class="nav-item">
+                <i class="fas fa-upload"></i>
+                <span>Upload</span>
+            </a>
+            <a href="musician_profile.html" class="nav-item">
+                <i class="fas fa-user"></i>
+                <span>Profil</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- LOGIKA FETCH LAGU -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/songs/my-songs', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const result = await response.json();
+                const container = document.getElementById('songsContainer');
+
+                if (response.ok) {
+                    const songs = result.data;
+                    if (!songs || songs.length === 0) {
+                        container.innerHTML = '<p style="color: #b3b3b3; grid-column: span 2;">Belum ada lagu yang diupload.</p>';
+                        return;
+                    }
+
+                    songs.forEach(song => {
+                        const card = document.createElement('div');
+                        card.className = 'song-card';
+                        
+                        // Gunakan cover URL jika ada, jika tidak pakai warna abu-abu
+                        const coverStyle = song.CoverURL 
+                            ? `background-image: url('http://localhost:8080${song.CoverURL}');` 
+                            : '';
+
+                        card.innerHTML = `
+                            <div class="song-img" style="${coverStyle}"></div>
+                            <h4 class="song-title">${song.Title}</h4>
+                            <p class="song-artist">${song.Artist}</p>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = `<p style="color: #E61E32; grid-column: span 2;">Gagal memuat lagu: ${result.message}</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching songs:", error);
+                document.getElementById('songsContainer').innerHTML = '<p style="color: #E61E32; grid-column: span 2;">Terjadi kesalahan jaringan.</p>';
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Musikita - Riwayat</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+        
+        <header class="app-header">
+            <div class="logo">
+                <span>Musikita</span>
+            </div>
+            <div class="header-icons">
+                <a href="history.html" style="color: #ffffff;"><i class="fas fa-clock"></i></a>
+                <a href="profile.html"><i class="far fa-user-circle"></i></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2>Baru Saja Diputar</h2>
+            
+            <div class="history-list">
+                <div class="history-item">
+                    <div class="hist-img" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=Artis Populer'" style="cursor:pointer;"></div>
+                    <div class="hist-info" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=Artis Populer'" style="cursor:pointer;">
+                        <h4>Heavy Rotation</h4>
+                        <p>Artis Populer</p>
+                    </div>
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+                <div class="history-item">
+                    <div class="hist-img" onclick="window.location.href='player.html?judul=Melodi Sore&artis=Band Akustik'" style="cursor:pointer;"></div>
+                    <div class="hist-info" onclick="window.location.href='player.html?judul=Melodi Sore&artis=Band Akustik'" style="cursor:pointer;">
+                        <h4>Melodi Sore</h4>
+                        <p>Band Akustik</p>
+                    </div>
+                    <i class="fas fa-ellipsis-v"></i>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i>
+                <span>Cari</span>
+            </a>
+            <a href="library.html" class="nav-item">
+                <i class="fas fa-book-open"></i>
+                <span>Koleksi</span>
+            </a>
+        </nav>
+
+    </div>
+
+</body>
+</html>

@@ -65,3 +65,13 @@ func (r *SongRepository) GetTrending() (
 	return songs, err
 }
 
+func (r *SongRepository) Create(song *models.Song) error {
+	return config.DB.Create(song).Error
+}
+
+func (r *SongRepository) GetByUserID(userID uint) ([]models.Song, error) {
+	var songs []models.Song
+	err := config.DB.Where("user_id = ?", userID).Order("id DESC").Find(&songs).Error
+	return songs, err
+}
+

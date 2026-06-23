@@ -21,8 +21,8 @@
                 <span>Musikita</span>
             </div>
             <div class="header-icons">
-                <a href="riwayat.html"><i class="far fa-clock"></i></a>
-                <a href="profil.html"><i class="far fa-user-circle"></i></a>
+                <a href="history.html"><i class="far fa-clock"></i></a>
+                <a href="profile.html"><i class="far fa-user-circle"></i></a>
             </div>
         </header>
 
@@ -40,18 +40,9 @@
                 </div>
             </div>
 
-            <h3 class="section-title">Baru Saja Diputar</h3>
-            <div class="playlist-row">
-                <div class="playlist-card" onclick="window.location.href='player.html?judul=Top Hits Indonesia&artis=Musikita'">
-                    <div class="card-img"></div>
-                    <h4>Top Hits Indonesia</h4>
-                    <p>Playlist • Musikita</p>
-                </div>
-                <div class="playlist-card" onclick="window.location.href='player.html?judul=J-Pop Essentials&artis=Akhir Pekan'">
-                    <div class="card-img"></div>
-                    <h4>J-Pop Essentials</h4>
-                    <p>Playlist • Akhir Pekan</p>
-                </div>
+            <h3 class="section-title">Baru Saja Ditambahkan</h3>
+            <div class="playlist-row" id="recentSongsContainer">
+                <p style="color: #b3b3b3; font-size: 14px;">Memuat lagu...</p>
             </div>
         </main>
 
@@ -60,17 +51,67 @@
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="cari.html" class="nav-item">
+            <a href="search.html" class="nav-item">
                 <i class="fas fa-search"></i>
                 <span>Cari</span>
             </a>
-            <a href="koleksi.html" class="nav-item">
+            <a href="library.html" class="nav-item">
                 <i class="fas fa-book-open"></i>
                 <span>Koleksi</span>
             </a>
         </nav>
 
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8080/api/songs', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+                const container = document.getElementById('recentSongsContainer');
+
+                if (response.ok) {
+                    const songs = result.data;
+                    if (!songs || songs.length === 0) {
+                        container.innerHTML = '<p style="color: #b3b3b3;">Belum ada lagu tersedia.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = ''; // clear loading
+                    songs.forEach(song => {
+                        const card = document.createElement('div');
+                        card.className = 'playlist-card';
+                        card.onclick = () => window.location.href = `player.html?id=${song.ID}`;
+                        
+                        const coverStyle = song.CoverURL 
+                            ? `background-image: url('http://localhost:8080${song.CoverURL}');` 
+                            : '';
+
+                        card.innerHTML = `
+                            <div class="card-img" style="${coverStyle}"></div>
+                            <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.Title}</h4>
+                            <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.Artist}</p>
+                        `;
+                        container.appendChild(card);
+                    });
+                } else {
+                    container.innerHTML = `<p style="color: #E61E32;">Gagal memuat lagu.</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching songs:", error);
+                document.getElementById('recentSongsContainer').innerHTML = '<p style="color: #E61E32;">Terjadi kesalahan jaringan.</p>';
+            }
+        });
+    </script>
 
 </body>
 </html>
