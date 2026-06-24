@@ -21,7 +21,6 @@
                 <span>IM Music</span>
             </div>
             <div class="header-icons">
-                <a href="history.html"><i class="far fa-clock"></i></a>
                 <a href="profile.html"><i class="far fa-user-circle"></i></a>
             </div>
         </header>
@@ -34,13 +33,6 @@
                 <input type="text" id="searchInput" placeholder="Apa yang ingin kamu dengarkan?" class="search-input" onkeyup="if(event.key === 'Enter') goToSearch()">
             </div>
             
-            <h3 class="section-title" style="margin-top: 25px;">Jelajahi Semua</h3>
-            <div class="category-grid">
-                <div class="category-card" style="background-color: #E61E32;" onclick="goToSearch('Pop')">Pop</div>
-                <div class="category-card" style="background-color: #1E3264;" onclick="goToSearch('J-Pop')">J-Pop</div>
-                <div class="category-card" style="background-color: #E1306C;" onclick="goToSearch('Akustik')">Akustik</div>
-                <div class="category-card" style="background-color: #7D4B32;" onclick="goToSearch('Podcast')">Podcast</div>
-            </div>
         </main>
 
         <nav class="bottom-nav">
@@ -73,6 +65,6 @@
             window.location.href = 'search_results.html?q=' + encodeURIComponent(keyword);
         }
     </script>
-
+    <script src="js/player-overlay.js"></script>
 </body>
 </html>

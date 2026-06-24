@@ -6,6 +6,67 @@
 (function () {
     'use strict';
 
+    // If inside iframe (child mode), delegate PlayerOverlay requests to parent and exit.
+    if (window !== window.top) {
+        document.addEventListener('DOMContentLoaded', () => {
+            // Reset body style inside iframe to prevent flex centering and double background issues
+            document.documentElement.style.height = '100%';
+            document.body.style.backgroundColor = 'transparent';
+            document.body.style.display = 'block';
+            document.body.style.minHeight = '100%';
+            document.body.style.height = '100%';
+
+            const container = document.querySelector('.mobile-container');
+            if (container) {
+                container.style.width = '100%';
+                container.style.maxWidth = 'none';
+                container.style.height = '100%';
+                container.style.borderRadius = '0';
+                container.style.boxShadow = 'none';
+            }
+        });
+
+        if (window.location.pathname.includes('player.html')) {
+            const params = new URLSearchParams(window.location.search);
+            const songId = params.get('id');
+            if (songId && window.parent && window.parent.PlayerOverlay) {
+                window.parent.PlayerOverlay.play(songId);
+            } else if (window.parent && window.parent.PlayerOverlay) {
+                window.parent.PlayerOverlay.show();
+            }
+            window.history.back();
+        }
+
+        window.PlayerOverlay = {
+            play(songId) {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.play(songId);
+                }
+            },
+            toggle() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.toggle();
+                }
+            },
+            show() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.show();
+                }
+            },
+            hide() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.hide();
+                }
+            },
+            seek(event) {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.seek(event);
+                }
+            }
+        };
+        return;
+    }
+
     const API_BASE = 'http://localhost:8080';
 
     // localStorage keys
@@ -90,7 +151,6 @@
 
             openOverlay();
             showMiniBar();
-            saveHistory(parseInt(songId), token);
 
         } catch (e) { console.error('PlayerOverlay:', e); }
     }
@@ -311,15 +371,7 @@
         return `${m}:${sec.toString().padStart(2, '0')}`;
     }
 
-    async function saveHistory(songId, token) {
-        try {
-            await fetch(`${API_BASE}/api/history`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ song_id: songId })
-            });
-        } catch (e) {}
-    }
+
 
     /* ──────────────────────────────────────────────────────────
        PUBLIC API
@@ -371,9 +423,42 @@
     ────────────────────────────────────────────────────────── */
 
     document.addEventListener('DOMContentLoaded', () => {
-        injectOverlay();
-        injectMiniBar();
-        restoreState();
+        const container = document.querySelector('.mobile-container');
+        if (container) {
+            const currentUrl = window.location.href;
+
+            // Clear container and replace with iframe
+            container.innerHTML = `
+                <iframe id="app-iframe" src="${currentUrl}" style="width:100%; height:100%; border:none; outline:none; background:#121212;"></iframe>
+            `;
+
+            // Now inject overlays in the parent container
+            injectOverlay();
+            injectMiniBar();
+            restoreState();
+
+            // Sync URL and Title from Iframe
+            const iframe = document.getElementById('app-iframe');
+            iframe.addEventListener('load', () => {
+                try {
+                    const iframeWindow = iframe.contentWindow;
+                    const iframeUrl = iframeWindow.location.href;
+                    if (window.location.href !== iframeUrl) {
+                        window.history.pushState(null, '', iframeUrl);
+                    }
+                    document.title = iframeWindow.document.title;
+                } catch (e) {
+                    console.error("Failed to sync iframe location:", e);
+                }
+            });
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        const iframe = document.getElementById('app-iframe');
+        if (iframe) {
+            iframe.src = window.location.href;
+        }
     });
 
 })();
