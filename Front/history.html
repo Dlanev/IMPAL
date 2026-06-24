@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musikita - Riwayat</title>
+    <title>IM Music - Riwayat</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
         
         <header class="app-header">
             <div class="logo">
-                <span>Musikita</span>
+                <span>IM Music</span>
             </div>
             <div class="header-icons">
                 <a href="history.html" style="color: #ffffff;"><i class="fas fa-clock"></i></a>
@@ -29,23 +29,8 @@
         <main class="main-content">
             <h2>Baru Saja Diputar</h2>
             
-            <div class="history-list">
-                <div class="history-item">
-                    <div class="hist-img" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=Artis Populer'" style="cursor:pointer;"></div>
-                    <div class="hist-info" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=Artis Populer'" style="cursor:pointer;">
-                        <h4>Heavy Rotation</h4>
-                        <p>Artis Populer</p>
-                    </div>
-                    <i class="fas fa-ellipsis-v"></i>
-                </div>
-                <div class="history-item">
-                    <div class="hist-img" onclick="window.location.href='player.html?judul=Melodi Sore&artis=Band Akustik'" style="cursor:pointer;"></div>
-                    <div class="hist-info" onclick="window.location.href='player.html?judul=Melodi Sore&artis=Band Akustik'" style="cursor:pointer;">
-                        <h4>Melodi Sore</h4>
-                        <p>Band Akustik</p>
-                    </div>
-                    <i class="fas fa-ellipsis-v"></i>
-                </div>
+            <div class="history-list" id="historyContainer">
+                <p style="color: #b3b3b3; font-size: 14px;">Memuat riwayat...</p>
             </div>
         </main>
 
@@ -65,6 +50,60 @@
         </nav>
 
     </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('historyContainer');
+            try {
+                const response = await fetch(`${API_BASE}/api/history`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const histories = result.data;
+                    if (!histories || histories.length === 0) {
+                        container.innerHTML = '<p style="color: #b3b3b3;">Belum ada riwayat putar.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    histories.forEach(item => {
+                        const song = item.Song || {};
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+
+                        const coverStyle = song.CoverURL
+                            ? `background-image: url('${API_BASE}${song.CoverURL}'); background-size: cover; background-position: center;`
+                            : '';
+
+                        div.innerHTML = `
+                            <div class="hist-img" onclick="window.location.href='player.html?id=${song.ID}'" style="${coverStyle} cursor:pointer;"></div>
+                            <div class="hist-info" onclick="window.location.href='player.html?id=${song.ID}'" style="cursor:pointer;">
+                                <h4>${song.Title || 'Unknown'}</h4>
+                                <p>${song.Artist || '-'}</p>
+                            </div>
+                            <i class="fas fa-ellipsis-v"></i>
+                        `;
+                        container.appendChild(div);
+                    });
+                } else {
+                    container.innerHTML = `<p style="color: #E61E32;">Gagal memuat riwayat.</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `<p style="color: #E61E32;">Terjadi kesalahan jaringan.</p>`;
+            }
+        });
+    </script>
 
 </body>
 </html>

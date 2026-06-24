@@ -153,6 +153,9 @@ body {
     background-color: #282828;
     border-radius: 4px;
     margin-bottom: 10px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .playlist-card h4 {
@@ -237,6 +240,10 @@ body {
     height: 60px;
     background-color: #282828;
     border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
 }
 .lib-info h4 { font-size: 14px; margin-bottom: 4px;}
 .lib-info p { font-size: 12px; color: #b3b3b3;}
@@ -253,6 +260,10 @@ body {
     height: 50px;
     background-color: #282828;
     border-radius: 4px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    flex-shrink: 0;
 }
 .history-item i {
     color: #b3b3b3;
@@ -491,6 +502,9 @@ body {
     align-items: center;
     justify-content: center;
     margin: 20px 0 35px 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 .player-cover i {
@@ -629,6 +643,10 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    overflow: hidden;
 }
 
 .result-img i {
@@ -661,3 +679,120 @@ body {
 .result-empty p {
     font-size: 13px;
 }
+
+/* ==========================================================================
+   10. PLAYER OVERLAY — full-screen slide-up player (persistent)
+   ========================================================================== */
+
+#playerOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #121212;
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    /* Mulai di luar layar (bawah), luncur ke atas saat aktif */
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+#playerOverlay.active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   11. MINI PLAYER BAR — muncul di atas bottom nav saat lagu sedang diputar
+   ========================================================================== */
+
+#miniPlayerBar {
+    position: absolute;
+    bottom: 65px; /* tepat di atas bottom nav (tinggi 65px) */
+    left: 0;
+    width: 100%;
+    display: none; /* ditampilkan oleh JS */
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #1c1c1c 0%, #2a2a2a 100%);
+    border-top: 1px solid #383838;
+    gap: 12px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+    /* Animasi muncul dari bawah */
+    animation: miniSlideIn 0.3s ease;
+}
+
+@keyframes miniSlideIn {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+}
+
+.mini-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.mini-cover {
+    width: 44px;
+    height: 44px;
+    background-color: #535353;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.mini-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    gap: 3px;
+}
+
+.mini-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #ffffff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-artist {
+    font-size: 11px;
+    color: #b3b3b3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-play-btn {
+    width: 38px;
+    height: 38px;
+    background-color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s, background-color 0.2s;
+}
+
+.mini-play-btn:hover  { background-color: #e0e0e0; }
+.mini-play-btn:active { transform: scale(0.9); }
+
+.mini-play-btn i {
+    color: #121212;
+    font-size: 14px;
+}

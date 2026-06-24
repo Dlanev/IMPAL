@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musikita - Hasil Pencarian</title>
+    <title>IM Music - Hasil Pencarian</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
 
         <header class="app-header">
             <div class="logo">
-                <span>Musikita</span>
+                <span>IM Music</span>
             </div>
             <div class="header-icons">
                 <a href="history.html"><i class="far fa-clock"></i></a>
@@ -37,44 +37,12 @@
                 </div>
             </div>
 
-            <!-- Label menunjukkan kata kunci yang dicari -->
+            <!-- Label kata kunci -->
             <p class="search-query-label">Menampilkan hasil untuk: <span id="queryLabel">...</span></p>
 
-            <!-- Daftar Hasil Pencarian (Placeholder Generik) -->
+            <!-- Daftar Hasil Pencarian dari API -->
             <div class="library-list" id="resultList">
-
-                <div class="result-item" onclick="window.location.href='player.html?judul=Hasil Pencarian 1&artis=Artis Tidak Diketahui'">
-                    <div class="result-img"><i class="fas fa-music"></i></div>
-                    <div class="result-info">
-                        <h4>Hasil Pencarian 1</h4>
-                        <p>Lagu • Artis Tidak Diketahui</p>
-                    </div>
-                </div>
-
-                <div class="result-item" onclick="window.location.href='player.html?judul=Hasil Pencarian 2&artis=Artis Tidak Diketahui'">
-                    <div class="result-img"><i class="fas fa-music"></i></div>
-                    <div class="result-info">
-                        <h4>Hasil Pencarian 2</h4>
-                        <p>Lagu • Artis Tidak Diketahui</p>
-                    </div>
-                </div>
-
-                <div class="result-item" onclick="window.location.href='player.html?judul=Hasil Pencarian 3&artis=Artis Tidak Diketahui'">
-                    <div class="result-img"><i class="fas fa-music"></i></div>
-                    <div class="result-info">
-                        <h4>Hasil Pencarian 3</h4>
-                        <p>Lagu • Artis Tidak Diketahui</p>
-                    </div>
-                </div>
-
-                <div class="result-item" onclick="window.location.href='player.html?judul=Hasil Pencarian 4&artis=Artis Tidak Diketahui'">
-                    <div class="result-img"><i class="fas fa-music"></i></div>
-                    <div class="result-info">
-                        <h4>Hasil Pencarian 4</h4>
-                        <p>Lagu • Artis Tidak Diketahui</p>
-                    </div>
-                </div>
-
+                <p style="color: #b3b3b3; font-size: 14px;">Mencari lagu...</p>
             </div>
 
         </main>
@@ -97,7 +65,13 @@
     </div>
 
     <script>
-        // Ambil kata kunci pencarian dari URL (dikirim oleh halaman search.html)
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
         const params = new URLSearchParams(window.location.search);
         const keyword = params.get('q');
 
@@ -107,16 +81,65 @@
         if (keyword) {
             queryLabel.innerText = '"' + keyword + '"';
             searchInputResult.value = keyword;
+            fetchSearchResults(keyword);
         } else {
             queryLabel.innerText = '(kosong)';
+            document.getElementById('resultList').innerHTML = '<p style="color: #b3b3b3;">Masukkan kata kunci untuk mencari lagu.</p>';
         }
 
-        // Memungkinkan user mengetik ulang kata kunci baru langsung dari halaman ini
+        async function fetchSearchResults(q) {
+            const container = document.getElementById('resultList');
+            try {
+                const response = await fetch(`${API_BASE}/api/songs/search?q=${encodeURIComponent(q)}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    const songs = result.data;
+                    if (!songs || songs.length === 0) {
+                        container.innerHTML = '<p style="color: #b3b3b3;">Tidak ada lagu yang ditemukan.</p>';
+                        return;
+                    }
+
+                    container.innerHTML = '';
+                    songs.forEach(song => {
+                        const item = document.createElement('div');
+                        item.className = 'result-item';
+                        item.onclick = () => PlayerOverlay.play(song.ID);
+
+                        const imgContent = song.CoverURL
+                            ? `<img src="${API_BASE}${song.CoverURL}" alt="cover" style="width:100%;height:100%;object-fit:cover;border-radius:6px;">`
+                            : `<i class="fas fa-music"></i>`;
+
+                        item.innerHTML = `
+                            <div class="result-img">${imgContent}</div>
+                            <div class="result-info">
+                                <h4>${song.Title}</h4>
+                                <p>Lagu • ${song.Artist}</p>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                } else {
+                    container.innerHTML = `<p style="color: #E61E32;">Gagal memuat hasil pencarian.</p>`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                container.innerHTML = `<p style="color: #E61E32;">Terjadi kesalahan jaringan.</p>`;
+            }
+        }
+
+        // User mengetik ulang kata kunci baru
         function updateQuery() {
             const newKeyword = searchInputResult.value.trim();
-            window.location.href = 'hasil-search.html?q=' + encodeURIComponent(newKeyword);
+            if (newKeyword) {
+                window.location.href = `search_results.html?q=${encodeURIComponent(newKeyword)}`;
+            }
         }
     </script>
 
+    <script src="js/player-overlay.js"></script>
 </body>
 </html>

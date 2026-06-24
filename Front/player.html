@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musikita - Sedang Diputar</title>
+    <title>IM Music - Sedang Diputar</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,31 +26,31 @@
         <!-- KONTEN UTAMA PLAYER -->
         <main class="player-content">
 
-            <!-- Cover Lagu (Placeholder) -->
-            <div class="player-cover">
-                <i class="fas fa-music"></i>
+            <!-- Cover Lagu -->
+            <div class="player-cover" id="playerCover">
+                <i class="fas fa-music" id="coverIcon"></i>
             </div>
 
             <!-- Info Judul & Artis Lagu -->
             <div class="player-info">
-                <h3 id="songTitle">Judul Lagu</h3>
-                <p id="songArtist">Nama Artis</p>
+                <h3 id="songTitle">Memuat...</h3>
+                <p id="songArtist">-</p>
             </div>
 
             <!-- Progress Bar Lagu -->
             <div class="player-progress">
-                <div class="progress-bar-track" id="progressTrack">
+                <div class="progress-bar-track" id="progressTrack" onclick="seekAudio(event)">
                     <div class="progress-bar-fill" id="progressFill"></div>
                 </div>
                 <div class="progress-time">
-                    <span id="currentTime">1:12</span>
-                    <span id="totalTime">3:24</span>
+                    <span id="currentTime">0:00</span>
+                    <span id="totalTime">0:00</span>
                 </div>
             </div>
 
             <!-- Tombol Kontrol Player -->
             <div class="player-controls">
-                <i class="fas fa-random control-secondary"></i>
+                <i class="fas fa-random control-secondary" id="shuffleBtn" onclick="toggleShuffle()"></i>
                 <i class="fas fa-step-backward"></i>
                 <div class="control-play" id="playPauseBtn" onclick="togglePlay()">
                     <i class="fas fa-play" id="playPauseIcon"></i>
@@ -63,32 +63,161 @@
 
     </div>
 
+    <!-- Hidden Audio Element -->
+    <audio id="audioPlayer" preload="auto"></audio>
+
     <script>
-        // Ambil data lagu dari URL (dikirim dari halaman hasil pencarian / lainnya)
-        const params = new URLSearchParams(window.location.search);
-        const judul = params.get('judul');
-        const artis = params.get('artis');
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
 
-        if (judul) {
-            document.getElementById('songTitle').innerText = judul;
-        }
-        if (artis) {
-            document.getElementById('songArtist').innerText = artis;
+        if (!token) {
+            window.location.href = 'login.html';
         }
 
-        // Logika sederhana tombol Play / Pause
+        const audioPlayer = document.getElementById('audioPlayer');
         let isPlaying = false;
+        let currentSongId = null;
+
+        // Ambil song ID dari URL
+        const params = new URLSearchParams(window.location.search);
+        const songId = params.get('id');
+
+        if (!songId) {
+            document.getElementById('songTitle').innerText = 'Lagu tidak ditemukan';
+            document.getElementById('songArtist').innerText = '-';
+        } else {
+            loadSong(songId);
+        }
+
+        async function loadSong(id) {
+            try {
+                const response = await fetch(`${API_BASE}/api/songs/${id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    document.getElementById('songTitle').innerText = 'Lagu tidak ditemukan';
+                    document.getElementById('songArtist').innerText = '-';
+                    return;
+                }
+
+                const result = await response.json();
+                const song = result.data;
+
+                currentSongId = song.ID;
+
+                // Set judul dan artis
+                document.getElementById('songTitle').innerText = song.Title;
+                document.getElementById('songArtist').innerText = song.Artist;
+                document.title = `${song.Title} - IM Music`;
+
+                // Set cover lagu
+                const coverEl = document.getElementById('playerCover');
+                if (song.CoverURL) {
+                    coverEl.style.backgroundImage = `url('${API_BASE}${song.CoverURL}')`;
+                    coverEl.style.backgroundSize = 'cover';
+                    coverEl.style.backgroundPosition = 'center';
+                    document.getElementById('coverIcon').style.display = 'none';
+                }
+
+                // Set audio source dan mulai putar
+                if (song.AudioURL) {
+                    audioPlayer.src = `${API_BASE}${song.AudioURL}`;
+                    audioPlayer.load();
+                    audioPlayer.play().then(() => {
+                        isPlaying = true;
+                        document.getElementById('playPauseIcon').classList.remove('fa-play');
+                        document.getElementById('playPauseIcon').classList.add('fa-pause');
+                    }).catch(err => {
+                        console.warn('Autoplay dicegah:', err);
+                    });
+
+                    // Simpan ke riwayat putar
+                    saveHistory(song.ID);
+                } else {
+                    document.getElementById('songTitle').innerText += ' (Audio tidak tersedia)';
+                }
+
+            } catch (error) {
+                console.error('Error memuat lagu:', error);
+                document.getElementById('songTitle').innerText = 'Terjadi kesalahan';
+            }
+        }
+
+        // Simpan history play ke backend
+        async function saveHistory(songId) {
+            try {
+                await fetch(`${API_BASE}/api/history`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ song_id: songId })
+                });
+            } catch (err) {
+                console.warn('Gagal simpan history:', err);
+            }
+        }
+
+        // Toggle Play / Pause
         function togglePlay() {
-            const icon = document.getElementById('playPauseIcon');
-            isPlaying = !isPlaying;
+            if (!audioPlayer.src) return;
 
             if (isPlaying) {
-                icon.classList.remove('fa-play');
-                icon.classList.add('fa-pause');
+                audioPlayer.pause();
+                isPlaying = false;
+                document.getElementById('playPauseIcon').classList.remove('fa-pause');
+                document.getElementById('playPauseIcon').classList.add('fa-play');
             } else {
-                icon.classList.remove('fa-pause');
-                icon.classList.add('fa-play');
+                audioPlayer.play();
+                isPlaying = true;
+                document.getElementById('playPauseIcon').classList.remove('fa-play');
+                document.getElementById('playPauseIcon').classList.add('fa-pause');
             }
+        }
+
+        // Update progress bar secara real-time
+        audioPlayer.addEventListener('timeupdate', () => {
+            if (audioPlayer.duration) {
+                const pct = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+                document.getElementById('progressFill').style.width = pct + '%';
+                document.getElementById('currentTime').innerText = formatTime(audioPlayer.currentTime);
+                document.getElementById('totalTime').innerText = formatTime(audioPlayer.duration);
+            }
+        });
+
+        // Saat lagu selesai
+        audioPlayer.addEventListener('ended', () => {
+            isPlaying = false;
+            document.getElementById('playPauseIcon').classList.remove('fa-pause');
+            document.getElementById('playPauseIcon').classList.add('fa-play');
+            document.getElementById('progressFill').style.width = '0%';
+        });
+
+        // Klik progress bar untuk seek
+        function seekAudio(event) {
+            if (!audioPlayer.duration) return;
+            const track = document.getElementById('progressTrack');
+            const rect = track.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const ratio = clickX / rect.width;
+            audioPlayer.currentTime = ratio * audioPlayer.duration;
+        }
+
+        // Format detik ke mm:ss
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = Math.floor(seconds % 60);
+            return `${m}:${s.toString().padStart(2, '0')}`;
+        }
+
+        // Toggle Shuffle (visual only)
+        let shuffleOn = false;
+        function toggleShuffle() {
+            shuffleOn = !shuffleOn;
+            const btn = document.getElementById('shuffleBtn');
+            btn.style.color = shuffleOn ? '#1DB954' : '';
         }
     </script>
 

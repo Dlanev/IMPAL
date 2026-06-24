@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Musikita - Home</title>
+    <title>IM Music - Home</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
         
         <header class="app-header">
             <div class="logo">
-                <span>Musikita</span>
+                <span>IM Music</span>
             </div>
             <div class="header-icons">
                 <a href="history.html"><i class="far fa-clock"></i></a>
@@ -90,7 +90,7 @@
                     songs.forEach(song => {
                         const card = document.createElement('div');
                         card.className = 'playlist-card';
-                        card.onclick = () => window.location.href = `player.html?id=${song.ID}`;
+                        card.onclick = () => PlayerOverlay.play(song.ID);
                         
                         const coverStyle = song.CoverURL 
                             ? `background-image: url('http://localhost:8080${song.CoverURL}');` 
@@ -113,5 +113,6 @@
         });
     </script>
 
+    <script src="js/player-overlay.js"></script>
 </body>
 </html>
