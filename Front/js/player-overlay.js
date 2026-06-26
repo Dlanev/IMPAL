@@ -48,6 +48,26 @@
                     window.parent.PlayerOverlay.toggle();
                 }
             },
+            next() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.next();
+                }
+            },
+            prev() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.prev();
+                }
+            },
+            toggleShuffle() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.toggleShuffle();
+                }
+            },
+            cycleRepeat() {
+                if (window.parent && window.parent.PlayerOverlay) {
+                    window.parent.PlayerOverlay.cycleRepeat();
+                }
+            },
             show() {
                 if (window.parent && window.parent.PlayerOverlay) {
                     window.parent.PlayerOverlay.show();
@@ -84,6 +104,12 @@
     let isPlaying   = false;
     let overlayOpen = false;
 
+    // Playback queue + modes
+    let queue        = [];     // array of song objects {ID, Title, Artist, CoverURL, AudioURL}
+    let currentIndex = -1;     // index into queue
+    let shuffleOn    = localStorage.getItem('im_shuffle') === 'true';
+    let repeatMode   = localStorage.getItem('im_repeat') || 'off'; // 'off' | 'all' | 'one'
+
     /* ──────────────────────────────────────────────────────────
        AUDIO ENGINE
     ────────────────────────────────────────────────────────── */
@@ -104,11 +130,7 @@
             setEl('po-total', el => el.innerText = fmt(audio.duration));
         });
 
-        audio.addEventListener('ended', () => {
-            isPlaying = false;
-            localStorage.setItem(SK.isPlaying, 'false');
-            setPlayIcons('play');
-        });
+        audio.addEventListener('ended', handleEnded);
 
         return audio;
     }
@@ -117,42 +139,164 @@
        LOAD & PLAY
     ────────────────────────────────────────────────────────── */
 
-    async function loadAndPlay(songId) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+    // Build the playback queue from the full song library (once).
+    async function ensureQueue() {
+        if (!queue.length) {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/songs`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) queue = (await res.json()).data || [];
+            } catch (e) { console.error('PlayerOverlay queue:', e); }
+        }
+        // After a reload the queue is rebuilt; locate the current song in it.
+        if (queue.length && currentIndex === -1) {
+            const sid = localStorage.getItem(SK.songId);
+            const i = queue.findIndex(s => String(s.ID) === String(sid));
+            currentIndex = i >= 0 ? i : 0;
+        }
+    }
 
+    async function fetchSong(songId) {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
         try {
             const res = await fetch(`${API_BASE}/api/songs/${songId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            if (!res.ok) return;
-            const song = (await res.json()).data;
+            if (!res.ok) return null;
+            return (await res.json()).data;
+        } catch (e) { console.error('PlayerOverlay:', e); return null; }
+    }
 
-            // Simpan state ke localStorage
-            localStorage.setItem(SK.songId,      song.ID);
-            localStorage.setItem(SK.songTitle,   song.Title);
-            localStorage.setItem(SK.songArtist,  song.Artist);
-            localStorage.setItem(SK.coverUrl,    song.CoverURL  || '');
-            localStorage.setItem(SK.audioUrl,    song.AudioURL  || '');
-            localStorage.setItem(SK.currentTime, '0');
-            localStorage.setItem(SK.isPlaying,   'true');
+    // Public entry: play a song by id, positioning it within the library queue.
+    async function playById(songId) {
+        await ensureQueue();
+        let idx = queue.findIndex(s => String(s.ID) === String(songId));
+        if (idx === -1) {
+            const song = await fetchSong(songId);
+            if (!song) return;
+            queue = [song];
+            idx = 0;
+        }
+        currentIndex = idx;
+        playCurrentSong(true);
+    }
 
-            renderOverlayUI(song);
-            renderMiniUI(song);
+    // Play whatever is at currentIndex. open=true also slides up the full overlay.
+    function playCurrentSong(open) {
+        const song = queue[currentIndex];
+        if (!song) return;
 
+        localStorage.setItem(SK.songId,      song.ID);
+        localStorage.setItem(SK.songTitle,   song.Title);
+        localStorage.setItem(SK.songArtist,  song.Artist);
+        localStorage.setItem(SK.coverUrl,    song.CoverURL  || '');
+        localStorage.setItem(SK.audioUrl,    song.AudioURL  || '');
+        localStorage.setItem(SK.currentTime, '0');
+        localStorage.setItem(SK.isPlaying,   'true');
+
+        renderOverlayUI(song);
+        renderMiniUI(song);
+
+        const a = getAudio();
+        if (song.AudioURL) {
+            a.src = API_BASE + song.AudioURL;
+            a.currentTime = 0;
+            a.play()
+                .then(() => { isPlaying = true; setPlayIcons('pause'); })
+                .catch(console.warn);
+        }
+
+        if (open) openOverlay();
+        showMiniBar();
+    }
+
+    // Decide the next index. auto=true means triggered by track end.
+    function computeNext(auto) {
+        const n = queue.length;
+        if (!n) return -1;
+        if (shuffleOn && n > 1) {
+            let r;
+            do { r = Math.floor(Math.random() * n); } while (r === currentIndex);
+            return r;
+        }
+        if (currentIndex + 1 < n) return currentIndex + 1;
+        if (repeatMode === 'all') return 0;
+        return auto ? -1 : 0; // auto-stop at end; manual next wraps
+    }
+
+    async function next(auto) {
+        await ensureQueue();
+        const i = computeNext(auto);
+        if (i < 0) {
+            isPlaying = false;
+            localStorage.setItem(SK.isPlaying, 'false');
+            setPlayIcons('play');
+            return;
+        }
+        currentIndex = i;
+        playCurrentSong(false);
+    }
+
+    async function prev() {
+        const a = getAudio();
+        // If more than 3s in, restart current track instead of going back.
+        if (a.duration && a.currentTime > 3) { a.currentTime = 0; return; }
+        await ensureQueue();
+        const n = queue.length;
+        if (!n) return;
+        let i;
+        if (shuffleOn && n > 1) {
+            do { i = Math.floor(Math.random() * n); } while (i === currentIndex);
+        } else {
+            i = currentIndex - 1;
+            if (i < 0) i = (repeatMode === 'all') ? n - 1 : 0;
+        }
+        currentIndex = i;
+        playCurrentSong(false);
+    }
+
+    function handleEnded() {
+        if (repeatMode === 'one') {
             const a = getAudio();
-            if (song.AudioURL) {
-                a.src = API_BASE + song.AudioURL;
-                a.currentTime = 0;
-                a.play()
-                    .then(() => { isPlaying = true; setPlayIcons('pause'); })
-                    .catch(console.warn);
-            }
+            a.currentTime = 0;
+            a.play()
+                .then(() => { isPlaying = true; setPlayIcons('pause'); })
+                .catch(() => setPlayIcons('play'));
+            return;
+        }
+        next(true);
+    }
 
-            openOverlay();
-            showMiniBar();
+    /* ── shuffle / repeat ────────────────────────────────────── */
+    function toggleShuffle() {
+        shuffleOn = !shuffleOn;
+        localStorage.setItem('im_shuffle', shuffleOn ? 'true' : 'false');
+        updateModeIcons();
+    }
 
-        } catch (e) { console.error('PlayerOverlay:', e); }
+    function cycleRepeat() {
+        repeatMode = repeatMode === 'off' ? 'all'
+                   : repeatMode === 'all' ? 'one'
+                   : 'off';
+        localStorage.setItem('im_repeat', repeatMode);
+        updateModeIcons();
+    }
+
+    function updateModeIcons() {
+        const sh = document.getElementById('po-shuffle');
+        if (sh) sh.style.color = shuffleOn ? '#1DB954' : '';
+
+        const rp  = document.getElementById('po-repeat');
+        const one = document.getElementById('po-repeat-one');
+        if (rp) {
+            const icon = rp.querySelector('i');
+            if (icon) icon.style.color = (repeatMode !== 'off') ? '#1DB954' : '#b3b3b3';
+        }
+        if (one) one.style.display = (repeatMode === 'one') ? 'inline' : 'none';
     }
 
     /* ──────────────────────────────────────────────────────────
@@ -227,13 +371,16 @@
                     </div>
                 </div>
                 <div class="player-controls">
-                    <i class="fas fa-random control-secondary"></i>
-                    <i class="fas fa-step-backward"></i>
+                    <i class="fas fa-random control-secondary" id="po-shuffle"></i>
+                    <i class="fas fa-step-backward" id="po-prev"></i>
                     <div class="control-play" id="po-play-btn">
                         <i class="fas fa-play" id="po-play-icon"></i>
                     </div>
-                    <i class="fas fa-step-forward"></i>
-                    <i class="fas fa-redo control-secondary"></i>
+                    <i class="fas fa-step-forward" id="po-next"></i>
+                    <span class="control-secondary" id="po-repeat" style="position:relative;display:inline-flex;align-items:center;cursor:pointer;">
+                        <i class="fas fa-redo"></i>
+                        <span id="po-repeat-one" style="display:none;position:absolute;top:-7px;right:-9px;font-size:9px;font-weight:700;color:#1DB954;">1</span>
+                    </span>
                 </div>
             </main>
         `;
@@ -247,6 +394,12 @@
         });
         el.querySelector('#po-play-btn').addEventListener('click', () => PlayerOverlay.toggle());
         el.querySelector('#po-track').addEventListener('click', e => PlayerOverlay.seek(e));
+        el.querySelector('#po-shuffle').addEventListener('click', () => toggleShuffle());
+        el.querySelector('#po-prev').addEventListener('click', () => prev());
+        el.querySelector('#po-next').addEventListener('click', () => next(false));
+        el.querySelector('#po-repeat').addEventListener('click', () => cycleRepeat());
+
+        updateModeIcons();
     }
 
     function injectMiniBar() {
@@ -399,8 +552,16 @@
     window.PlayerOverlay = {
         /** Muat dan putar lagu berdasarkan ID */
         play(songId) {
-            loadAndPlay(songId);
+            playById(songId);
         },
+
+        /** Lagu berikutnya / sebelumnya */
+        next() { next(false); },
+        prev() { prev(); },
+
+        /** Toggle mode acak / ulangi */
+        toggleShuffle() { toggleShuffle(); },
+        cycleRepeat()   { cycleRepeat(); },
 
         /** Toggle play / pause */
         toggle() {
