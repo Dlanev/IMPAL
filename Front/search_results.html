@@ -118,6 +118,10 @@
                                 <h4>${song.Title}</h4>
                                 <p>Lagu • ${song.Artist}</p>
                             </div>
+                            <div class="song-actions">
+                                <i class="far fa-heart" title="Suka" onclick="event.stopPropagation(); Actions.like(${song.ID})"></i>
+                                <i class="fas fa-plus" title="Tambah ke playlist" onclick="event.stopPropagation(); Actions.addToPlaylist(${song.ID})"></i>
+                            </div>
                         `;
                         container.appendChild(item);
                     });
@@ -140,5 +144,6 @@
     </script>
 
     <script src="js/player-overlay.js"></script>
+    <script src="js/playlist-ui.js"></script>
 </body>
 </html>

@@ -34,7 +34,7 @@
                 <div class="profile-avatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <h3>kucing sumbul</h3>
+                <h3 id="profileName">Memuat...</h3>
             </div>
             
             <div class="profile-menu">
@@ -42,17 +42,23 @@
                 <!-- Baris Informasi Nama Pengguna -->
                 <div class="menu-row">
                     <span>Nama Pengguna</span> 
-                    <span style="color: #b3b3b3; font-weight: 400;">kucing sumbul</span>
+                    <span id="profileUsername" style="color: #b3b3b3; font-weight: 400;">-</span>
                 </div>
                 
                 <!-- Baris Informasi Alamat Email -->
                 <div class="menu-row">
                     <span>Email</span> 
-                    <span style="color: #b3b3b3; font-weight: 400;">sumbul@gmail.com</span>
+                    <span id="profileEmail" style="color: #b3b3b3; font-weight: 400;">-</span>
+                </div>
+
+                <!-- Baris Informasi Peran -->
+                <div class="menu-row">
+                    <span>Peran</span> 
+                    <span id="profileRole" style="color: #b3b3b3; font-weight: 400;">-</span>
                 </div>
                 
                 <!-- Menu Keluar -->
-                <div class="menu-row" style="color: #E61E32;" onclick="window.location.href='login.html'">
+                <div class="menu-row" style="color: #E61E32;" onclick="logout()">
                     <span>Keluar</span>
                 </div>
             </div>
@@ -75,6 +81,41 @@
         </nav>
 
     </div>
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'login.html'; }
+
+        function logout() {
+            localStorage.removeItem('token');
+            // also clear persisted player state
+            ['im_songId','im_songTitle','im_songArtist','im_coverUrl','im_audioUrl','im_currentTime','im_isPlaying']
+                .forEach(k => localStorage.removeItem(k));
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const res = await fetch(`${API_BASE}/api/auth/profile`, {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if (res.status === 401) { logout(); return; }
+                const result = await res.json();
+                if (res.ok && result.data) {
+                    const u = result.data;
+                    document.getElementById('profileName').innerText = u.Username || '-';
+                    document.getElementById('profileUsername').innerText = u.Username || '-';
+                    document.getElementById('profileEmail').innerText = u.Email || '-';
+                    document.getElementById('profileRole').innerText = u.Role || '-';
+                } else {
+                    document.getElementById('profileName').innerText = 'Gagal memuat profil';
+                }
+            } catch (e) {
+                console.error(e);
+                document.getElementById('profileName').innerText = 'Kesalahan jaringan';
+            }
+        });
+    </script>
     <script src="js/player-overlay.js"></script>
 </body>
 </html>

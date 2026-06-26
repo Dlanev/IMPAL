@@ -86,6 +86,10 @@
                             <div class="card-img" style="${coverStyle}"></div>
                             <h4 style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.Title}</h4>
                             <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${song.Artist}</p>
+                            <div class="song-actions" style="margin-top:6px;">
+                                <i class="far fa-heart" title="Suka" onclick="event.stopPropagation(); Actions.like(${song.ID})"></i>
+                                <i class="fas fa-plus" title="Tambah ke playlist" onclick="event.stopPropagation(); Actions.addToPlaylist(${song.ID})"></i>
+                            </div>
                         `;
                         container.appendChild(card);
                     });
@@ -100,5 +104,6 @@
     </script>
 
     <script src="js/player-overlay.js"></script>
+    <script src="js/playlist-ui.js"></script>
 </body>
 </html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IM Music - Playlist</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <div class="mobile-container">
+
+        <header class="app-header">
+            <div class="header-icons">
+                <a href="library.html" style="color:#fff;"><i class="fas fa-arrow-left"></i></a>
+            </div>
+            <div class="logo">
+                <span>IM Music</span>
+            </div>
+            <div class="header-icons">
+                <a href="#" id="deletePlaylistBtn" style="color:#E61E32;"><i class="fas fa-trash"></i></a>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2 id="playlistName">Playlist</h2>
+            <p id="playlistMeta" style="color:#b3b3b3;font-size:14px;margin-top:-8px;">Memuat...</p>
+
+            <div class="library-list" id="songsContainer" style="margin-top:16px;">
+                <p style="color:#b3b3b3;font-size:14px;">Memuat lagu...</p>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="search.html" class="nav-item">
+                <i class="fas fa-search"></i>
+                <span>Cari</span>
+            </a>
+            <a href="library.html" class="nav-item active">
+                <i class="fas fa-book-open"></i>
+                <span>Koleksi</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'login.html'; }
+
+        const params = new URLSearchParams(window.location.search);
+        const playlistId = params.get('id');
+
+        function authHeaders(extra) {
+            return Object.assign({ 'Authorization': 'Bearer ' + token }, extra || {});
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        if (!playlistId) {
+            document.getElementById('playlistName').innerText = 'Playlist tidak ditemukan';
+            document.getElementById('playlistMeta').innerText = '';
+        } else {
+            loadHeader();
+            loadSongs();
+        }
+
+        // Backend has no "get one playlist" endpoint, so find it in the list.
+        async function loadHeader() {
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, { headers: authHeaders() });
+                const result = await res.json();
+                const list = (result.data || []);
+                const p = list.find(x => String(x.id) === String(playlistId));
+                document.getElementById('playlistName').innerText = p ? p.name : 'Playlist';
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadSongs() {
+            const container = document.getElementById('songsContainer');
+            const meta = document.getElementById('playlistMeta');
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${playlistId}/songs`, {
+                    headers: authHeaders()
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    container.innerHTML = '<p style="color:#E61E32;">Gagal memuat lagu.</p>';
+                    meta.innerText = '';
+                    return;
+                }
+                const items = result.data || [];
+                meta.innerText = 'Playlist • ' + items.length + ' Lagu';
+                if (items.length === 0) {
+                    container.innerHTML = '<p style="color:#b3b3b3;font-size:14px;">Belum ada lagu di playlist ini.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                items.forEach(it => {
+                    const song = it.song || {};
+                    const div = document.createElement('div');
+                    div.className = 'library-item';
+                    const coverStyle = song.CoverURL
+                        ? `background-image:url('${API_BASE}${song.CoverURL}');background-size:cover;background-position:center;`
+                        : '';
+                    div.innerHTML = `
+                        <div class="lib-img" style="${coverStyle}cursor:pointer;"></div>
+                        <div class="lib-info" style="flex:1;cursor:pointer;">
+                            <h4>${esc(song.Title || 'Unknown')}</h4>
+                            <p>${esc(song.Artist || '-')}</p>
+                        </div>
+                        <i class="fas fa-times" style="color:#b3b3b3;padding:8px;cursor:pointer;"></i>
+                    `;
+                    div.querySelector('.lib-img').onclick = () => PlayerOverlay.play(song.ID);
+                    div.querySelector('.lib-info').onclick = () => PlayerOverlay.play(song.ID);
+                    div.querySelector('.fa-times').onclick =
+                        (e) => { e.stopPropagation(); removeSong(song.ID); };
+                    container.appendChild(div);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:#E61E32;">Terjadi kesalahan jaringan.</p>';
+            }
+        }
+
+        async function removeSong(songId) {
+            try {
+                const res = await fetch(
+                    `${API_BASE}/api/playlists/${playlistId}/songs/${songId}`,
+                    { method: 'DELETE', headers: authHeaders() }
+                );
+                if (res.ok) loadSongs();
+            } catch (e) { console.error(e); }
+        }
+
+        document.getElementById('deletePlaylistBtn').addEventListener('click', async (e) => {
+            e.preventDefault();
+            if (!confirm('Hapus playlist ini?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${playlistId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                if (res.ok) window.location.href = 'library.html';
+                else alert('Gagal menghapus playlist');
+            } catch (err) { console.error(err); alert('Kesalahan jaringan'); }
+        });
+    </script>
+    <script src="js/player-overlay.js"></script>
+    <script src="js/playlist-ui.js"></script>
+</body>
+</html>

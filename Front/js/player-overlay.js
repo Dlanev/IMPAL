@@ -328,6 +328,7 @@
         if (o) { o.classList.add('active'); overlayOpen = true; }
         const m = document.getElementById('miniPlayerBar');
         if (m) m.style.display = 'none';
+        syncContentPadding();
     }
 
     function closeOverlay() {
@@ -340,10 +341,28 @@
         const m = document.getElementById('miniPlayerBar');
         if (m && !overlayOpen) {
             m.style.display = 'flex';
-            // Beri ruang tambahan agar konten tidak tertutup mini player
-            const mc = document.querySelector('.main-content');
-            if (mc) mc.style.paddingBottom = '160px';
+            syncContentPadding();
         }
+    }
+
+    /* Reserve space at the bottom of the page content (which lives inside
+       the iframe) so the floating mini player bar doesn't cover the last
+       rows / action buttons. The mini bar sits at bottom:65px and is ~64px
+       tall, so ~150px of clearance keeps content fully tappable. */
+    function syncContentPadding() {
+        const iframe = document.getElementById('app-iframe');
+        if (!iframe) return;
+        let doc = null;
+        try {
+            doc = iframe.contentDocument ||
+                  (iframe.contentWindow && iframe.contentWindow.document);
+        } catch (e) { return; }
+        if (!doc) return;
+        const mc = doc.querySelector('.main-content');
+        if (!mc) return;
+        const m = document.getElementById('miniPlayerBar');
+        const visible = !!(m && m.style.display !== 'none' && !overlayOpen);
+        mc.style.paddingBottom = visible ? '150px' : '';
     }
 
     /* ──────────────────────────────────────────────────────────
@@ -447,6 +466,7 @@
                         window.history.pushState(null, '', iframeUrl);
                     }
                     document.title = iframeWindow.document.title;
+                    syncContentPadding();
                 } catch (e) {
                     console.error("Failed to sync iframe location:", e);
                 }

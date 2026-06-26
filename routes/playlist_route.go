@@ -27,4 +27,24 @@ func PlaylistRoutes(
 		"",
 		playlist.GetPlaylists,
 	)
+
+	api.GET(
+		"/:id/songs",
+		playlist.GetPlaylistSongs,
+	)
+
+	api.POST(
+		"/:id/songs/:songId",
+		playlist.AddSong,
+	)
+
+	api.DELETE(
+		"/:id/songs/:songId",
+		playlist.RemoveSong,
+	)
+
+	api.DELETE(
+		"/:id",
+		playlist.DeletePlaylist,
+	)
 }

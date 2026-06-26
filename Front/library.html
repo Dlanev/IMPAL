@@ -30,60 +30,29 @@
             
             <div class="library-filter">
                 <span id="badge-playlist" class="filter-badge active" onclick="filterKoleksi('playlist')">Playlist</span>
-                <span id="badge-artis" class="filter-badge" onclick="filterKoleksi('artis')">Artis</span>
-                <span id="badge-album" class="filter-badge" onclick="filterKoleksi('album')">Album</span>
+                <span id="badge-disukai" class="filter-badge" onclick="filterKoleksi('disukai')">Disukai</span>
             </div>
             
             <div class="library-list">
                 
                 <div id="content-playlist" class="lib-tab-content" style="display: block;">
-                    <div class="library-item" onclick="window.location.href='player.html?judul=Lagu Disukai&artis=Kamu'">
-                        <div class="lib-img"></div>
+                    <div class="library-item" onclick="createPlaylist()" style="cursor:pointer;">
+                        <div class="lib-img" style="display:flex;align-items:center;justify-content:center;">
+                            <i class="fas fa-plus" style="color:#1DB954;"></i>
+                        </div>
                         <div class="lib-info">
-                            <h4>Lagu Disukai</h4>
-                            <p>Playlist • 120 Lagu</p>
+                            <h4>Buat Playlist Baru</h4>
+                            <p>Playlist</p>
                         </div>
                     </div>
-                    <div class="library-item" onclick="window.location.href='player.html?judul=Daftar Putar Santai&artis=Kamu'">
-                        <div class="lib-img"></div>
-                        <div class="lib-info">
-                            <h4>Daftar Putar Santai</h4>
-                            <p>Playlist • Kamu</p>
-                        </div>
+                    <div id="playlistContainer">
+                        <p style="color:#b3b3b3;font-size:14px;">Memuat playlist...</p>
                     </div>
                 </div>
 
-                <div id="content-artis" class="lib-tab-content" style="display: none;">
-                    <div class="library-item" onclick="window.location.href='player.html?judul=Heavy Rotation&artis=JKT48'">
-                        <div class="lib-img" style="border-radius: 50%;"></div>
-                        <div class="lib-info">
-                            <h4>JKT48</h4>
-                            <p>Artis</p>
-                        </div>
-                    </div>
-                    <div class="library-item" onclick="window.location.href='player.html?judul=Yoru ni Kakeru&artis=Yoasobi'">
-                        <div class="lib-img" style="border-radius: 50%;"></div>
-                        <div class="lib-info">
-                            <h4>Yoasobi</h4>
-                            <p>Artis</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="content-album" class="lib-tab-content" style="display: none;">
-                    <div class="library-item" onclick="window.location.href='player.html?judul=Mahagita 2&artis=JKT48'">
-                        <div class="lib-img"></div>
-                        <div class="lib-info">
-                            <h4>Mahagita 2</h4>
-                            <p>Album • JKT48</p>
-                        </div>
-                    </div>
-                    <div class="library-item" onclick="window.location.href='player.html?judul=The Book&artis=Yoasobi'">
-                        <div class="lib-img"></div>
-                        <div class="lib-info">
-                            <h4>The Book</h4>
-                            <p>Album • Yoasobi</p>
-                        </div>
+                <div id="content-disukai" class="lib-tab-content" style="display: none;">
+                    <div id="favoritesContainer">
+                        <p style="color:#b3b3b3;font-size:14px;">Memuat lagu disukai...</p>
                     </div>
                 </div>
 
@@ -108,20 +77,164 @@
     </div>
 
     <script>
+        const API_BASE = 'http://localhost:8080';
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = 'login.html'; }
+
+        function authHeaders(extra) {
+            return Object.assign({ 'Authorization': 'Bearer ' + token }, extra || {});
+        }
+
+        function esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         function filterKoleksi(kategori) {
-            // 1. Sembunyikan semua konten tab terlebih dahulu
-            const semuaKonten = document.querySelectorAll('.lib-tab-content');
-            semuaKonten.forEach(konten => konten.style.display = 'none');
-
-            // 2. Hilangkan status warna aktif (class 'active') di semua tombol badge
-            const semuaBadge = document.querySelectorAll('.filter-badge');
-            semuaBadge.forEach(badge => badge.classList.remove('active'));
-
-            // 3. Munculkan konten dan nyalakan badge sesuai dengan kategori yang diklik
+            document.querySelectorAll('.lib-tab-content')
+                .forEach(k => k.style.display = 'none');
+            document.querySelectorAll('.filter-badge')
+                .forEach(b => b.classList.remove('active'));
             document.getElementById('content-' + kategori).style.display = 'block';
             document.getElementById('badge-' + kategori).classList.add('active');
         }
+
+        async function createPlaylist() {
+            const name = prompt('Nama playlist baru:');
+            if (!name || !name.trim()) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, {
+                    method: 'POST',
+                    headers: authHeaders({ 'Content-Type': 'application/json' }),
+                    body: JSON.stringify({ name: name.trim(), description: '' })
+                });
+                if (res.ok) {
+                    loadPlaylists();
+                } else {
+                    alert('Gagal membuat playlist');
+                }
+            } catch (e) { console.error(e); alert('Kesalahan jaringan'); }
+        }
+
+        async function deletePlaylist(id, name) {
+            if (!confirm('Hapus playlist "' + name + '"?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists/${id}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                if (res.ok) loadPlaylists();
+                else alert('Gagal menghapus playlist');
+            } catch (e) { console.error(e); alert('Kesalahan jaringan'); }
+        }
+
+        async function loadPlaylists() {
+            const container = document.getElementById('playlistContainer');
+            try {
+                const res = await fetch(`${API_BASE}/api/playlists`, {
+                    headers: authHeaders()
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    container.innerHTML = '<p style="color:#E61E32;">Gagal memuat playlist.</p>';
+                    return;
+                }
+                const playlists = result.data || [];
+                if (playlists.length === 0) {
+                    container.innerHTML = '<p style="color:#b3b3b3;font-size:14px;">Belum ada playlist.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                playlists.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'library-item';
+                    item.innerHTML = `
+                        <div class="lib-img" style="display:flex;align-items:center;justify-content:center;cursor:pointer;">
+                            <i class="fas fa-music" style="color:#b3b3b3;"></i>
+                        </div>
+                        <div class="lib-info" style="flex:1;cursor:pointer;">
+                            <h4>${esc(p.name)}</h4>
+                            <p>Playlist</p>
+                        </div>
+                        <i class="fas fa-trash" style="color:#b3b3b3;padding:8px;cursor:pointer;"></i>
+                    `;
+                    item.querySelector('.lib-img').onclick =
+                        () => window.location.href = 'playlist_detail.html?id=' + p.id;
+                    item.querySelector('.lib-info').onclick =
+                        () => window.location.href = 'playlist_detail.html?id=' + p.id;
+                    item.querySelector('.fa-trash').onclick =
+                        (e) => { e.stopPropagation(); deletePlaylist(p.id, p.name); };
+                    container.appendChild(item);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:#E61E32;">Terjadi kesalahan jaringan.</p>';
+            }
+        }
+
+        async function unlike(songId) {
+            try {
+                const res = await fetch(`${API_BASE}/api/favorites/${songId}`, {
+                    method: 'DELETE',
+                    headers: authHeaders()
+                });
+                if (res.ok) loadFavorites();
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadFavorites() {
+            const container = document.getElementById('favoritesContainer');
+            try {
+                const res = await fetch(`${API_BASE}/api/favorites`, {
+                    headers: authHeaders()
+                });
+                const result = await res.json();
+                if (!res.ok) {
+                    container.innerHTML = '<p style="color:#E61E32;">Gagal memuat lagu disukai.</p>';
+                    return;
+                }
+                const favs = result.data || [];
+                if (favs.length === 0) {
+                    container.innerHTML = '<p style="color:#b3b3b3;font-size:14px;">Belum ada lagu disukai.</p>';
+                    return;
+                }
+                container.innerHTML = '';
+                favs.forEach(f => {
+                    const song = f.Song || {};
+                    const item = document.createElement('div');
+                    item.className = 'library-item';
+                    const coverStyle = song.CoverURL
+                        ? `background-image:url('${API_BASE}${song.CoverURL}');background-size:cover;background-position:center;`
+                        : '';
+                    item.innerHTML = `
+                        <div class="lib-img" style="${coverStyle}cursor:pointer;"></div>
+                        <div class="lib-info" style="flex:1;cursor:pointer;">
+                            <h4>${esc(song.Title || 'Unknown')}</h4>
+                            <p>${esc(song.Artist || '-')}</p>
+                        </div>
+                        <i class="fas fa-heart" style="color:#1DB954;padding:8px;cursor:pointer;"></i>
+                    `;
+                    item.querySelector('.lib-img').onclick =
+                        () => PlayerOverlay.play(song.ID);
+                    item.querySelector('.lib-info').onclick =
+                        () => PlayerOverlay.play(song.ID);
+                    item.querySelector('.fa-heart').onclick =
+                        (e) => { e.stopPropagation(); unlike(song.ID); };
+                    container.appendChild(item);
+                });
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<p style="color:#E61E32;">Terjadi kesalahan jaringan.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPlaylists();
+            loadFavorites();
+        });
     </script>
     <script src="js/player-overlay.js"></script>
+    <script src="js/playlist-ui.js"></script>
 </body>
 </html>

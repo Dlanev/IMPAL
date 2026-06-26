@@ -20,7 +20,10 @@
         <header class="player-header">
             <a href="javascript:history.back()"><i class="fas fa-chevron-down"></i></a>
             <span class="player-label">Sedang Diputar</span>
-            <a href="#"><i class="fas fa-ellipsis-v"></i></a>
+            <span style="display:flex;gap:16px;align-items:center;">
+                <i class="far fa-heart" style="cursor:pointer;" title="Suka" onclick="if(currentSongId) Actions.like(currentSongId)"></i>
+                <i class="fas fa-plus" style="cursor:pointer;" title="Tambah ke playlist" onclick="if(currentSongId) Actions.addToPlaylist(currentSongId)"></i>
+            </span>
         </header>
 
         <!-- KONTEN UTAMA PLAYER -->
@@ -221,5 +224,6 @@
         }
     </script>
     <script src="js/player-overlay.js"></script>
+    <script src="js/playlist-ui.js"></script>
 </body>
 </html>
