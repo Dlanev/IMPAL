@@ -288,7 +288,7 @@
 
     function updateModeIcons() {
         const sh = document.getElementById('po-shuffle');
-        if (sh) sh.style.color = shuffleOn ? '#1DB954' : '';
+        if (sh) sh.classList.toggle('active', shuffleOn);
 
         const rp  = document.getElementById('po-repeat');
         const one = document.getElementById('po-repeat-one');

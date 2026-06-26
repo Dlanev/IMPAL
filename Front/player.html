@@ -215,13 +215,24 @@
             return `${m}:${s.toString().padStart(2, '0')}`;
         }
 
-        // Toggle Shuffle (visual only)
-        let shuffleOn = false;
+        // Toggle Shuffle — delegates to the real player engine (PlayerOverlay)
         function toggleShuffle() {
-            shuffleOn = !shuffleOn;
-            const btn = document.getElementById('shuffleBtn');
-            btn.style.color = shuffleOn ? '#1DB954' : '';
+            if (window.PlayerOverlay && window.PlayerOverlay.toggleShuffle) {
+                window.PlayerOverlay.toggleShuffle();
+            }
+            syncShuffleBtn();
         }
+
+        // Reflect the actual shuffle state (persisted in localStorage) on the button
+        function syncShuffleBtn() {
+            const btn = document.getElementById('shuffleBtn');
+            if (!btn) return;
+            const on = localStorage.getItem('im_shuffle') === 'true';
+            btn.classList.toggle('active', on);
+        }
+
+        // Initialize button color from current state on load
+        syncShuffleBtn();
     </script>
     <script src="js/player-overlay.js"></script>
     <script src="js/playlist-ui.js"></script>

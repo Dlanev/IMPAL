@@ -574,6 +574,12 @@ body {
     color: #b3b3b3 !important;
 }
 
+/* Active state (e.g. shuffle / repeat enabled) — must use !important to
+   override the base .control-secondary color above. */
+.control-secondary.active {
+    color: #1DB954 !important;
+}
+
 .control-play {
     width: 64px;
     height: 64px;
