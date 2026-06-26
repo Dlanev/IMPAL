@@ -351,7 +351,7 @@
             <header class="player-header">
                 <a href="#" id="po-close"><i class="fas fa-chevron-down"></i></a>
                 <span class="player-label">Sedang Diputar</span>
-                <a href="#"><i class="fas fa-ellipsis-v"></i></a>
+                <span style="width:20px;" aria-hidden="true"></span>
             </header>
             <main class="player-content">
                 <div class="player-cover" id="po-cover">
